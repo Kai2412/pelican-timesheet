@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <meta
+      name="description"
+      content="Community Time Sheet - Track your time efficiently"
+    />
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script>
+      // Pre-define google object to detect if script loaded correctly
+      window.googleAuthLoaded = false;
+      window.onGoogleLibraryLoad = function() {
+        // Google Identity Services SDK loaded successfully
+        window.googleAuthLoaded = true;
+      };
+    </script>
+    <link rel="apple-touch-icon" href="/logo192.png" />
+    <link rel="manifest" href="/manifest.json" />
+    <title>Community Time Sheet</title>
+  </head>
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"></div>
+    <script type="module" src="/src/index.jsx"></script>
+  </body>
+</html>

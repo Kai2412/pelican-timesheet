@@ -1,0 +1,17 @@
+{
+  "name": "master-community-timesheet",
+  "version": "1.0.0",
+  "main": "server/server.js",
+  "scripts": {
+    "start": "node server/server.js",
+    "build": "cd client && npm run build",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "Master Community Time Sheet Application Template",
+  "engines": {
+    "node": "18.x"
+  }
+}

@@ -1,0 +1,88 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-neutral-50 dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100;
+    @apply font-sans antialiased;
+  }
+  
+  /* Toast styling variables */
+  :root {
+    --toast-bg: #ffffff;
+    --toast-color: #374151;
+    --toast-border: #e5e7eb;
+  }
+  
+  .dark {
+    --toast-bg: #1e293b;
+    --toast-color: #f1f5f9;
+    --toast-border: #475569;
+  }
+}
+
+@layer components {
+  /* Custom component classes will go here */
+  .btn-primary {
+    @apply bg-primary-500 hover:bg-primary-600 text-white font-medium py-2 px-4 rounded-md transition-colors;
+  }
+  
+  .btn-secondary {
+    @apply bg-secondary-500 hover:bg-secondary-600 text-white font-medium py-2 px-4 rounded-md transition-colors;
+  }
+  
+  .form-input {
+    @apply w-full px-3 py-2 border border-neutral-300 dark:border-neutral-600 rounded-md shadow-sm 
+           bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100
+           focus:outline-none focus:ring-2 focus:ring-secondary-500 focus:border-secondary-500;
+  }
+  
+  .form-label {
+    @apply block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1;
+  }
+  
+  /* Custom slider styles */
+  .slider::-webkit-slider-thumb {
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    background: #0891b2;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid white;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  }
+  
+  .slider::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    background: #0891b2;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid white;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  }
+  
+  .slider::-ms-thumb {
+    width: 20px;
+    height: 20px;
+    background: #0891b2;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid white;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  }
+  
+  .dark .slider::-webkit-slider-thumb {
+    border-color: #1e293b;
+  }
+  
+  .dark .slider::-moz-range-thumb {
+    border-color: #1e293b;
+  }
+  
+  .dark .slider::-ms-thumb {
+    border-color: #1e293b;
+  }
+}
