@@ -9,7 +9,7 @@ COPY . .
 RUN cd server && npm install
 
 # Install client dependencies
-RUN cd client && npm install
+RUN cd client && npm install --legacy-peer-deps
 
 # Accept build argument from fly.toml and set as environment variable
 ARG REACT_APP_GOOGLE_CLIENT_ID
