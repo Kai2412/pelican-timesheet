@@ -66,8 +66,8 @@ app.use('/api/', apiLimiter);
 // CORS configuration with security enhancements
 const allowedOrigins = [
   ...(clientSettings.security?.allowedOrigins || [
-    'https://your-app-name.fly.dev',
-    'https://your-domain.com'
+    'https://pelicantimesubmission.fly.dev',
+    'https://pelican.refracted.io' 
   ]),
   // Development origins - more permissive for local development
   ...(process.env.NODE_ENV === 'development' ? [
