@@ -4,6 +4,10 @@ import { useAuth } from '../context/AuthContext.jsx';
 const Login = () => {
   const { handleLogin } = useAuth();
   
+  // TEMPORARY DEBUG - Remove after testing
+  console.log('🔍 Debug - Google Client ID loaded:', import.meta.env.VITE_GOOGLE_CLIENT_ID ? 'YES' : 'NO');
+  console.log('🔍 Debug - Client ID value:', import.meta.env.VITE_GOOGLE_CLIENT_ID);
+  
   // Wrap handleCredentialResponse in useCallback to make it stable across renders
   const handleCredentialResponse = useCallback((response) => {
     console.log('Received response from Google');
