@@ -11,12 +11,13 @@ RUN cd server && npm install
 # Install client dependencies
 RUN cd client && npm install --legacy-peer-deps
 
-# Accept build argument from fly.toml and set as environment variable
-ARG REACT_APP_GOOGLE_CLIENT_ID
-ENV REACT_APP_GOOGLE_CLIENT_ID=$REACT_APP_GOOGLE_CLIENT_ID
-
-# Build client (now with the Google Client ID available)
-RUN cd client && npm run build
+# Mount secrets during build and use them for React build
+RUN --mount=type=secret,id=REACT_APP_GOOGLE_CLIENT_ID \
+    --mount=type=secret,id=REACT_APP_ADMIN_PASSWORD \
+    cd client && \
+    export REACT_APP_GOOGLE_CLIENT_ID=$(cat /run/secrets/REACT_APP_GOOGLE_CLIENT_ID) && \
+    export REACT_APP_ADMIN_PASSWORD=$(cat /run/secrets/REACT_APP_ADMIN_PASSWORD) && \
+    npm run build
 
 # Expose port
 EXPOSE 8080
