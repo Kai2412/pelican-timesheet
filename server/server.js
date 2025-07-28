@@ -1512,20 +1512,6 @@ app.post('/api/admin/verify-password', authLimiter, (req, res) => {
   }
 });
 
-// Alternative endpoint name for admin validation (used by new frontend)
-app.post('/api/admin/validate', authLimiter, (req, res) => {
-  const { password } = req.body;
-  const adminPassword = process.env.REACT_APP_ADMIN_PASSWORD;
-  
-  console.log('🔍 Server checking admin password via /validate endpoint');
-  
-  if (password === adminPassword) {
-    res.json({ success: true });
-  } else {
-    res.json({ success: false, message: 'Invalid admin password' });
-  }
-});
-
 // Admin endpoint to get all users
 app.get('/api/admin/all-users', conditionalAuth, conditionalAdmin, async (req, res) => {
   try {
