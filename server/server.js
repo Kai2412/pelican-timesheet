@@ -20,6 +20,17 @@ app.use((req, res, next) => {
   res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
   
+  // Content Security Policy - Allow Google Sign-In
+  res.setHeader('Content-Security-Policy', 
+    "default-src 'self'; " +
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://accounts.google.com https://apis.google.com https://ssl.gstatic.com; " +
+    "style-src 'self' 'unsafe-inline' https://accounts.google.com https://fonts.googleapis.com; " +
+    "font-src 'self' https://fonts.gstatic.com; " +
+    "img-src 'self' data: https:; " +
+    "connect-src 'self' https://accounts.google.com https://oauth2.googleapis.com https://www.googleapis.com; " +
+    "frame-src https://accounts.google.com;"
+  );
+  
   // Remove server info
   res.removeHeader('X-Powered-By');
   
