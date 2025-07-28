@@ -19,7 +19,7 @@ module.exports = {
     // API Rate Limiting (requests per 15 minutes)
     rateLimits: {
       general: 100,      // General API requests
-      auth: 5,           // Authentication attempts
+      auth: 50,          // Authentication attempts (increased for testing)
       submissions: 20    // Form submissions per 5 minutes
     },
     
