@@ -1890,6 +1890,55 @@ app.post('/api/check-duplicates', conditionalAuth, conditionalRole([2, 3]), asyn
   }
 });
 
+// Admin validation endpoints
+// Endpoint to verify admin password
+app.post('/api/admin/verify-password', authLimiter, async (req, res) => {
+  const { password } = req.body;
+  
+  console.log('🔍 Server checking admin password against database');
+  
+  try {
+    // Generic query - works for any client since each DB only has one company
+    const result = await sql.query`
+      SELECT TOP 1 admin_password 
+      FROM dbo.PropertyCompany
+    `;
+    
+    if (result.recordset.length > 0 && result.recordset[0].admin_password === password) {
+      res.json({ success: true });
+    } else {
+      res.json({ success: false, message: 'Invalid admin password' });
+    }
+  } catch (error) {
+    console.error('Database error during admin validation:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Alternative endpoint name for admin validation (used by new frontend)
+app.post('/api/admin/validate', authLimiter, async (req, res) => {
+  const { password } = req.body;
+  
+  console.log('🔍 Server checking admin password via /validate endpoint against database');
+  
+  try {
+    // Generic query - works for any client since each DB only has one company
+    const result = await sql.query`
+      SELECT TOP 1 admin_password 
+      FROM dbo.PropertyCompany
+    `;
+    
+    if (result.recordset.length > 0 && result.recordset[0].admin_password === password) {
+      res.json({ success: true });
+    } else {
+      res.json({ success: false, message: 'Invalid admin password' });
+    }
+  } catch (error) {
+    console.error('Database error during admin validation:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
 // Serve static files from the React app build directory
 app.use(express.static(path.join(__dirname, '../client/build')));
 
