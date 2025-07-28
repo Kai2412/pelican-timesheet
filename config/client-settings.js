@@ -32,8 +32,8 @@ module.exports = {
     
     // Allowed domains for CORS (production)
     allowedOrigins: [
-      'https://your-app-name.fly.dev',
-      'https://your-domain.com'
+      'https://pelicantimesubmission.fly.dev',
+      'https://pelican.refracted.io'
     ]
   },
 
