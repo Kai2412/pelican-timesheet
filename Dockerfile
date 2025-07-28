@@ -14,8 +14,10 @@ RUN cd client && npm install --legacy-peer-deps
 # Accept build arguments and set as environment variables
 ARG REACT_APP_GOOGLE_CLIENT_ID
 ARG REACT_APP_ADMIN_PASSWORD
+ARG VITE_API_BASE_URL
 ENV REACT_APP_GOOGLE_CLIENT_ID=$REACT_APP_GOOGLE_CLIENT_ID
 ENV REACT_APP_ADMIN_PASSWORD=$REACT_APP_ADMIN_PASSWORD
+ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
 
 # Build the React app (now with environment variables available)
 RUN cd client && npm run build
