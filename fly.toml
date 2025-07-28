@@ -8,8 +8,8 @@ primary_region = 'dfw'
 
 [build]
   [build.args]
-    REACT_APP_GOOGLE_CLIENT_ID = { from_secret = "REACT_APP_GOOGLE_CLIENT_ID" }
-    REACT_APP_ADMIN_PASSWORD = { from_secret = "REACT_APP_ADMIN_PASSWORD" }
+    REACT_APP_GOOGLE_CLIENT_ID = "REACT_APP_GOOGLE_CLIENT_ID"
+    REACT_APP_ADMIN_PASSWORD = "REACT_APP_ADMIN_PASSWORD"
 
 [env]
   PORT = "8080"
