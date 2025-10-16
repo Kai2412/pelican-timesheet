@@ -799,29 +799,28 @@ app.post('/api/submit-assessment', authLimiter, conditionalAuth, conditionalRole
           throw new Error('Missing communityId in entry');
         }
         
-        if (timePercentage === undefined || timePercentage === null) {
-          throw new Error('Missing timePercentage in entry');
-        }
         
         // Prepare question responses based on submission type
-        let cq1, cq2, cq3, cq4, cq5, cq5_other, aq1, aq2, aq3, aq4, aq5, aq5_other;
+        let cq1, cq2, cq3, cq4, cq5, cq6, cq7, aq1, aq2, aq3, aq4, aq5, aq6, aq7;
         
         if (submissionType === 'Manager') {
           cq1 = responses[0] || null;
           cq2 = responses[1] || null;
           cq3 = responses[2] || null;
           cq4 = responses[3] || null;
-          cq5 = responses[4] || null;
-          cq5_other = otherText || null;
-          aq1 = aq2 = aq3 = aq4 = aq5 = aq5_other = null;
+          cq5 = responses[4] || null;  // "I perform services outside of the contract"
+          cq6 = responses[5] || null;  // "I feel like the Board and I get the support we need"
+          cq7 = responses[6] || null;  // "How many hours a week do you allocate to this client?"
+          aq1 = aq2 = aq3 = aq4 = aq5 = aq6 = aq7 = null;
         } else if (submissionType === 'Accounting') {
           aq1 = responses[0] || null;
           aq2 = responses[1] || null;
           aq3 = responses[2] || null;
           aq4 = responses[3] || null;
-          aq5 = responses[4] || null;
-          aq5_other = otherText || null;
-          cq1 = cq2 = cq3 = cq4 = cq5 = cq5_other = null;
+          aq5 = responses[4] || null;  // "I perform services outside of the contract"
+          aq6 = responses[5] || null;  // "I feel like the Board and I get the support we need"
+          aq7 = responses[6] || null;  // "How many hours a week do you allocate to this client?"
+          cq1 = cq2 = cq3 = cq4 = cq5 = cq6 = cq7 = null;
         }
         
         // For troubleshooting: log what we're going to insert
@@ -850,14 +849,15 @@ app.post('/api/submit-assessment', authLimiter, conditionalAuth, conditionalRole
           ps.input('cq3', sql.Int);
           ps.input('cq4', sql.Int);
           ps.input('cq5', sql.Int);
-          ps.input('cq5_other', sql.NVarChar);
+          ps.input('cq6', sql.Int);
+          ps.input('cq7', sql.Decimal(5,2));
           ps.input('aq1', sql.Int);
           ps.input('aq2', sql.Int);
           ps.input('aq3', sql.Int);
           ps.input('aq4', sql.Int);
           ps.input('aq5', sql.Int);
-          ps.input('aq5_other', sql.NVarChar);
-          ps.input('timePercentage', sql.Int);
+          ps.input('aq6', sql.Int);
+          ps.input('aq7', sql.Decimal(5,2));
           ps.input('submissionDate', sql.NVarChar);
           ps.input('notes', sql.NVarChar);
           
@@ -874,14 +874,15 @@ app.post('/api/submit-assessment', authLimiter, conditionalAuth, conditionalRole
               cq3,
               cq4,
               cq5,
-              cq5_other,
+              cq6,
+              cq7,
               aq1,
               aq2,
               aq3,
               aq4,
               aq5,
-              aq5_other,
-              time_percentage,
+              aq6,
+              aq7,
               submission_date,
               notes
             ) 
@@ -897,14 +898,15 @@ app.post('/api/submit-assessment', authLimiter, conditionalAuth, conditionalRole
               @cq3,
               @cq4,
               @cq5,
-              @cq5_other,
+              @cq6,
+              @cq7,
               @aq1,
               @aq2,
               @aq3,
               @aq4,
               @aq5,
-              @aq5_other,
-              @timePercentage,
+              @aq6,
+              @aq7,
               @submissionDate,
               @notes
             )
@@ -922,14 +924,15 @@ app.post('/api/submit-assessment', authLimiter, conditionalAuth, conditionalRole
             cq3: cq3,
             cq4: cq4,
             cq5: cq5,
-            cq5_other: cq5_other,
+            cq6: cq6,
+            cq7: cq7,
             aq1: aq1,
             aq2: aq2,
             aq3: aq3,
             aq4: aq4,
             aq5: aq5,
-            aq5_other: aq5_other,
-            timePercentage: parseInt(timePercentage),
+            aq6: aq6,
+            aq7: aq7,
             submissionDate: submissionDate,
             notes: '' // Empty notes for now
           });
@@ -1644,8 +1647,9 @@ app.post('/api/submit-assessment', async (req, res) => {
           cq2: responses[1] || 0,
           cq3: responses[2] || 0,
           cq4: responses[3] || 0,
-          cq5: responses[4] || 0,
-          cq5_other: otherText || null
+          cq5: responses[4] || null,  // Question 5: "I perform services outside of the contract"
+          cq6: responses[5] || null,  // Question 6: "I feel like the Board and I get the support we need"
+          cq7: responses[6] || null   // Question 7: "How many hours a week do you allocate to this client?"
         };
       } else { // Accounting
         columnData = {
@@ -1653,8 +1657,9 @@ app.post('/api/submit-assessment', async (req, res) => {
           aq2: responses[1] || 0,
           aq3: responses[2] || 0,
           aq4: responses[3] || 0,
-          aq5: responses[4] || 0,
-          aq5_other: otherText || null
+          aq5: responses[4] || null,  // Question 5: "I perform services outside of the contract"
+          aq6: responses[5] || null,  // Question 6: "I feel like the Board and I get the support we need"
+          aq7: responses[6] || null   // Question 7: "How many hours a week do you allocate to this client?"
         };
       }
 
@@ -1682,9 +1687,11 @@ app.post('/api/submit-assessment', async (req, res) => {
       
       // Add column-specific parameters
       Object.entries(columnData).forEach(([key, value]) => {
-        if (key === 'cq5_other' || key === 'aq5_other') {
-          request.input(key, sql.NVarChar(sql.MAX), value);
+        if (key === 'cq7' || key === 'aq7') {
+          // Hours per week columns use decimal
+          request.input(key, sql.Decimal(5,2), value);
         } else {
+          // All other columns use integer
           request.input(key, sql.Int, value);
         }
       });

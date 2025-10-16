@@ -42,40 +42,37 @@ const TimeSheetForm = ({ userInfo }) => {
   // Assessment entries
   const [assessmentEntries, setAssessmentEntries] = useState([]);
 
-  // Calculate total percentage allocation
-  const totalPercentage = assessmentEntries.reduce((sum, entry) => sum + (entry.timePercentage || 0), 0);
-
-  // Calculate max value for each slider to prevent exceeding 100%
-  const getSliderMaxValue = (currentEntryId, currentValue) => {
-    const otherEntriesTotal = assessmentEntries
-      .filter(entry => entry.id !== currentEntryId)
-      .reduce((sum, entry) => sum + (entry.timePercentage || 0), 0);
-    
-    const remainingPercentage = 100 - otherEntriesTotal;
-    return Math.max(0, remainingPercentage);
-  };
-
   // Check if any entries have 0% allocation
   const hasZeroPercentages = assessmentEntries.some(entry => entry.timePercentage === 0);
+
+  // Calculate total hours per week from all entries
+  const totalHoursPerWeek = assessmentEntries.reduce((sum, entry) => {
+    const hours = entry.responses[6] || 0; // Question 6 is the hours per week question
+    return sum + parseFloat(hours);
+  }, 0);
 
   // Available submission types
   const availableSubmissionTypes = ['Manager', 'Accounting'];
 
   // Question sets
   const MANAGER_QUESTIONS = [
-    "Board Communication & Meeting Management (0-5): How much time do you spend on board communications, meetings, and follow-up tasks for this community?",
-    "Resident Relations (0-5): How much time do you spend managing resident complaints, conflicts, and general relations?",
-    "Vendor Coordination (0-5): How much time do you spend managing contractors, maintenance, and vendor relationships for this community?",
-    "Compliance & Reporting (0-5): How much time do you spend on administrative, legal, and reporting requirements?",
-    "Other (0-5): Any other specific time-consuming tasks unique to this community? (Please specify below if > 0)"
+    "Board Communication & Meeting Management: How much time do you spend on board communications, meetings, and follow-up tasks for this community?",
+    "Resident Relations: How much time do you spend managing resident complaints, conflicts, and general relations?",
+    "Vendor Coordination: How much time do you spend managing contractors, maintenance, and vendor relationships for this community?",
+    "Compliance & Reporting: How much time do you spend on administrative, legal, and reporting requirements?",
+    "I perform services outside of the contract.",
+    "I feel like the Board and I get the support we need.",
+    "How many hours a week do you allocate to this client?"
   ];
 
   const ACCOUNTING_QUESTIONS = [
-    "Financial Reporting (0-5): How much time do you spend on financial statements, budgets, and reporting for this community?",
-    "Accounts Payable/Receivable (0-5): How much time do you spend managing payments, collections, and vendor invoices?",
-    "Compliance & Auditing (0-5): How much time do you spend on compliance requirements, audits, and regulatory filings?",
-    "Board Support (0-5): How much time do you spend preparing financial materials and supporting board meetings?",
-    "Other (0-5): Any other specific accounting tasks unique to this community? (Please specify below if > 0)"
+    "Financial Reporting: How much time do you spend on financial statements, budgets, and reporting for this community?",
+    "Accounts Payable/Receivable: How much time do you spend managing payments, collections, and vendor invoices?",
+    "Compliance & Auditing: How much time do you spend on compliance requirements, audits, and regulatory filings?",
+    "Board Support: How much time do you spend preparing financial materials and supporting board meetings?",
+    "I perform services outside of the contract.",
+    "I feel like the Board and I get the support we need.",
+    "How many hours a week do you allocate to this client?"
   ];
 
   // Get current questions based on submission type
@@ -85,9 +82,6 @@ const TimeSheetForm = ({ userInfo }) => {
 
   // Check if a card should have validation errors (red border)
   const hasCardValidationErrors = (entry) => {
-    // Always check percentage
-    if (entry.timePercentage === 0) return true;
-    
     // If questions are required, check question completeness
     if (questionsRequired) {
       const questions = getCurrentQuestions();
@@ -98,11 +92,6 @@ const TimeSheetForm = ({ userInfo }) => {
           return true;
         }
       }
-      
-      // Check if question 5 (Other) is answered but text is missing
-      if (entry.responses[4] > 0 && (!entry.otherText || entry.otherText.trim() === '')) {
-        return true;
-      }
     }
     
     return false;
@@ -112,7 +101,7 @@ const TimeSheetForm = ({ userInfo }) => {
   const hasValidationErrors = assessmentEntries.some(entry => hasCardValidationErrors(entry));
 
   // Check if form is ready for submission
-  const isFormValid = assessmentEntries.length > 0 && !hasValidationErrors && totalPercentage <= 100;
+  const isFormValid = assessmentEntries.length > 0 && !hasValidationErrors;
 
   // Fetch user communities on mount
   useEffect(() => {
@@ -469,11 +458,6 @@ const TimeSheetForm = ({ userInfo }) => {
         if (!entry.communityId) {
           throw new Error('Please select a community for all entries');
         }
-      }
-
-      // Validate percentage allocation
-      if (totalPercentage > 100) {
-        throw new Error('Total percentage allocation cannot exceed 100%');
       }
 
       // Submit assessment
@@ -921,40 +905,28 @@ const TimeSheetForm = ({ userInfo }) => {
               </div>
             </div>
 
-            {/* Percentage Allocation Progress Bar */}
-            <div className="bg-neutral-50 dark:bg-neutral-800 rounded-lg p-4 border border-neutral-200 dark:border-neutral-700">
-              <div className="flex justify-between items-center mb-2">
-                <h3 className="text-sm font-medium text-neutral-900 dark:text-white">
-                  Time Allocation Progress
-                </h3>
-                <span className={`text-sm font-medium ${
-                  totalPercentage > 100 
-                    ? 'text-red-600 dark:text-red-400' 
-                    : totalPercentage === 100 
-                    ? 'text-green-600 dark:text-green-400' 
-                    : 'text-neutral-600 dark:text-neutral-400'
-                }`}>
-                  {totalPercentage}%
-                </span>
+            {/* Total Hours Per Week Display */}
+            {assessmentEntries.length > 0 && (
+              <div className="bg-neutral-50 dark:bg-neutral-800 rounded-lg p-4 border border-neutral-200 dark:border-neutral-700">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-sm font-medium text-neutral-900 dark:text-white">
+                    Total Hours Per Week
+                  </h3>
+                  <span className={`text-lg font-bold ${
+                    totalHoursPerWeek > 40 
+                      ? 'text-red-600 dark:text-red-400' 
+                      : 'text-neutral-600 dark:text-neutral-400'
+                  }`}>
+                    {totalHoursPerWeek.toFixed(1)} hours
+                  </span>
+                </div>
+                {totalHoursPerWeek > 40 && (
+                  <p className="text-xs text-red-600 dark:text-red-400 mt-1">
+                    ⚠️ Warning: Total hours exceed 40 hours per week
+                  </p>
+                )}
               </div>
-              <div className="w-full bg-neutral-200 dark:bg-neutral-700 rounded-full h-2">
-                <div 
-                  className={`h-2 rounded-full transition-all duration-300 ${
-                    totalPercentage > 100 
-                      ? 'bg-red-500' 
-                      : totalPercentage === 100 
-                      ? 'bg-green-500' 
-                      : 'bg-secondary-500'
-                  }`}
-                  style={{ width: `${Math.min(totalPercentage, 100)}%` }}
-                />
-              </div>
-              {totalPercentage > 100 && (
-                <p className="text-xs text-red-600 dark:text-red-400 mt-1">
-                  Warning: Total allocation exceeds 100%
-                </p>
-              )}
-            </div>
+            )}
 
             {/* Assessment Entries */}
             {assessmentEntries.length > 0 ? (
@@ -987,8 +959,7 @@ const TimeSheetForm = ({ userInfo }) => {
                             <ChevronRight size={20} className="text-neutral-500" />
                           )}
                           <h4 className="text-md font-medium text-neutral-900 dark:text-white">
-                            Community Assessment {index + 1}
-                            {selectedCommunity && ` - ${selectedCommunity.name}`}
+                            {selectedCommunity ? selectedCommunity.name : `Community Assessment ${index + 1}`}
                           </h4>
                         </button>
                         {isAdminMode && (
@@ -1002,36 +973,6 @@ const TimeSheetForm = ({ userInfo }) => {
                             <Trash2 size={16} />
                           </Button>
                         )}
-                      </div>
-
-                      {/* Percentage Slider - Always Visible */}
-                      <div className="mb-4">
-                        <div className="flex items-center gap-2 mb-2">
-                          <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
-                            Time Allocation:
-                          </span>
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-                            {entry.timePercentage}%
-                          </span>
-                        </div>
-                        <div className="space-y-2">
-                          <input
-                            type="range"
-                            min="0"
-                            max={getSliderMaxValue(entry.id, entry.timePercentage)}
-                            value={entry.timePercentage}
-                            onChange={(e) => handlePercentageChange(entry.id, parseInt(e.target.value))}
-                            className="w-full h-2 bg-neutral-200 dark:bg-neutral-700 rounded-lg appearance-none cursor-pointer slider"
-                            style={{
-                              background: `linear-gradient(to right, #0891b2 0%, #0891b2 ${entry.timePercentage}%, #e5e7eb ${entry.timePercentage}%, #e5e7eb 100%)`
-                            }}
-                          />
-                          <div className="flex justify-between text-xs text-neutral-500">
-                            <span>0%</span>
-                            <span>50%</span>
-                            <span>100%</span>
-                          </div>
-                        </div>
                       </div>
 
                       {/* Expandable Content */}
@@ -1099,45 +1040,77 @@ const TimeSheetForm = ({ userInfo }) => {
                             {getCurrentQuestions().map((question, questionIndex) => (
                               <div key={questionIndex}>
                                 <label className="form-label">
-                                  {question}
+                                  {questionIndex + 1}. {question}
                                 </label>
-                                <div className="flex flex-wrap gap-6 mt-3 ml-4">
-                                  {[
-                                    { value: 0, label: 'None' },
-                                    { value: 1, label: 'Minimal' },
-                                    { value: 2, label: 'Low' },
-                                    { value: 3, label: 'Moderate' },
-                                    { value: 4, label: 'High' },
-                                    { value: 5, label: 'Very High' }
-                                  ].map((option) => (
-                                    <label key={option.value} className="flex items-center space-x-2 cursor-pointer">
-                                      <input
-                                        type="radio"
-                                        name={`question-${entry.id}-${questionIndex}`}
-                                        value={option.value}
-                                        checked={entry.responses[questionIndex] == option.value}
-                                        onChange={(e) => handleQuestionResponse(entry.id, questionIndex, parseInt(e.target.value))}
-                                        className="w-4 h-4 text-secondary-500 border-neutral-300 focus:ring-secondary-500 dark:border-neutral-600 dark:bg-neutral-700"
-                                      />
-                                      <span className="text-sm text-neutral-700 dark:text-neutral-300">
-                                        {option.label}
-                                      </span>
-                                    </label>
-                                  ))}
-                                </div>
                                 
-                                {/* Show text input for question 5 (Other) when value > 0 */}
-                                {questionIndex === 4 && entry.responses[4] > 0 && (
-                                  <div className="mt-3">
-                                    <Textarea
-                                      label={`Please specify the other time-consuming tasks: ${125 - (entry.otherText || '').length} characters remaining`}
-                                      placeholder="Describe the specific tasks that consume time for this community (max 125 characters)..."
-                                      value={entry.otherText || ''}
-                                      onChange={(e) => handleAssessmentEntryChange(entry.id, 'otherText', e.target.value)}
-                                      rows={3}
-                                      className="mt-2"
-                                      maxLength={125}
+                                {/* Questions 0-3: Time allocation questions with 0-4 scale */}
+                                {questionIndex < 4 && (
+                                  <div className="flex flex-wrap gap-6 mt-3 ml-4">
+                                    {[
+                                      { value: 0, label: 'None' },
+                                      { value: 1, label: 'Low' },
+                                      { value: 2, label: 'Medium' },
+                                      { value: 3, label: 'High' },
+                                      { value: 4, label: 'Very High' }
+                                    ].map((option) => (
+                                      <label key={option.value} className="flex items-center space-x-2 cursor-pointer">
+                                        <input
+                                          type="radio"
+                                          name={`question-${entry.id}-${questionIndex}`}
+                                          value={option.value}
+                                          checked={entry.responses[questionIndex] == option.value}
+                                          onChange={(e) => handleQuestionResponse(entry.id, questionIndex, parseInt(e.target.value))}
+                                          className="w-4 h-4 text-secondary-500 border-neutral-300 focus:ring-secondary-500 dark:border-neutral-600 dark:bg-neutral-700"
+                                        />
+                                        <span className="text-sm text-neutral-700 dark:text-neutral-300">
+                                          {option.label}
+                                        </span>
+                                      </label>
+                                    ))}
+                                  </div>
+                                )}
+                                
+                                {/* Questions 4-5: Agreement scale questions */}
+                                {(questionIndex === 4 || questionIndex === 5) && (
+                                  <div className="flex flex-wrap gap-6 mt-3 ml-4">
+                                    {[
+                                      { value: 1, label: 'Strongly Disagree' },
+                                      { value: 2, label: 'Disagree' },
+                                      { value: 3, label: 'Neutral' },
+                                      { value: 4, label: 'Agree' },
+                                      { value: 5, label: 'Strongly Agree' }
+                                    ].map((option) => (
+                                      <label key={option.value} className="flex items-center space-x-2 cursor-pointer">
+                                        <input
+                                          type="radio"
+                                          name={`question-${entry.id}-${questionIndex}`}
+                                          value={option.value}
+                                          checked={entry.responses[questionIndex] == option.value}
+                                          onChange={(e) => handleQuestionResponse(entry.id, questionIndex, parseInt(e.target.value))}
+                                          className="w-4 h-4 text-secondary-500 border-neutral-300 focus:ring-secondary-500 dark:border-neutral-600 dark:bg-neutral-700"
+                                        />
+                                        <span className="text-sm text-neutral-700 dark:text-neutral-300">
+                                          {option.label}
+                                        </span>
+                                      </label>
+                                    ))}
+                                  </div>
+                                )}
+                                
+                                {/* Question 6: Hours per week number input */}
+                                {questionIndex === 6 && (
+                                  <div className="mt-3 ml-4">
+                                    <input
+                                      type="number"
+                                      min="0"
+                                      max="168"
+                                      step="0.5"
+                                      placeholder="Enter hours per week"
+                                      value={entry.responses[questionIndex] || ''}
+                                      onChange={(e) => handleQuestionResponse(entry.id, questionIndex, parseFloat(e.target.value) || 0)}
+                                      className="w-32 px-3 py-2 border border-neutral-300 dark:border-neutral-600 rounded-md bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white focus:ring-2 focus:ring-secondary-500 focus:border-secondary-500"
                                     />
+                                    <span className="ml-2 text-sm text-neutral-600 dark:text-neutral-400">hours/week</span>
                                   </div>
                                 )}
                               </div>
@@ -1173,18 +1146,11 @@ const TimeSheetForm = ({ userInfo }) => {
               >
                 Submit Assessment
               </Button>
-              {!isFormValid && assessmentEntries.length > 0 && (
+              {!isFormValid && assessmentEntries.length > 0 && hasValidationErrors && (
                 <div className="mt-3 text-center">
-                  {hasValidationErrors && (
-                    <p className="text-sm text-red-600 dark:text-red-400">
-                      ⚠️ Please complete all required fields (red borders indicate incomplete entries)
-                    </p>
-                  )}
-                  {totalPercentage > 100 && (
-                    <p className="text-sm text-red-600 dark:text-red-400">
-                      ⚠️ Total allocation cannot exceed 100%
-                    </p>
-                  )}
+                  <p className="text-sm text-red-600 dark:text-red-400">
+                    ⚠️ Please complete all required fields (red borders indicate incomplete entries)
+                  </p>
                 </div>
               )}
             </div>
